@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Website{% endblock %}</title>
+    <!-- Link to Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/Main/about/">About</a></li>
+                <li><a href="/contact/">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" href="/Main/home_page">Home page</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/Main/courses">Courses</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/Main/choices">My Choices</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/Main/print_my_choices">Print My Choices</a>
+        </li>
+    </ul>
+    {% if university is not None %}
+    <h2 class="navbar-brand ml-4">{{university.name}}</h2> <!-- Adjust the margin as needed -->
+    {% endif %}
+    </nav>
+
+    {% block content %} {% endblock %}
+
+    <footer>
+        <!-- Footer content here -->
+    </footer>
+
+    <!-- Link to Bootstrap JS and jQuery (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+
+
+

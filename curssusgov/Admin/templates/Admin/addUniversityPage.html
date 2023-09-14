@@ -1,0 +1,15 @@
+{% extends 'Admin/base2.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Add a University</h2>
+    <form method="POST" action="/Admin/addUniversity/">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="university">Name</label>
+            <input id="university" name="university" type="text">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+{% endblock %}

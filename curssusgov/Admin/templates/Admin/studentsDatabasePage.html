@@ -1,0 +1,41 @@
+{% extends 'Admin/base2.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Student Database</h2>
+    <div class="table-responsive">
+        <div style="overflow-x: auto;">
+            <table class="table table-bordered table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th class="text-center">Serial Number</th>
+                        <th class="text-center">First Name</th>
+                        <th class="text-center">Last Name</th>
+                        <th class="text-center">Birth Date</th>
+                        <th class="text-center">School</th>
+                        <th class="text-center">City</th>
+                        <th class="text-center">ERN</th>
+                        <th class="text-center">ENN</th>
+                        <th class="text-center">ESN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td class="text-center">{{ student.serial_number }}</td>
+                        <td>{{ student.first_name }}</td>
+                        <td>{{ student.last_name }}</td>
+                        <td class="text-center">{{ student.birth_date }}</td>
+                        <td>{{ student.school }}</td>
+                        <td>{{ student.city }}</td>
+                        <td class="text-center">{{ student.ERN }}</td>
+                        <td class="text-center">{{ student.ENN }}</td>
+                        <td class="text-center">{{ student.ESN }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

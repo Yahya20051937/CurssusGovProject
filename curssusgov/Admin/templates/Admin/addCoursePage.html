@@ -1,0 +1,29 @@
+{% extends 'Admin/base2.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Add Course</h2>
+    <form method="POST" action="/addCourse/">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="university">University</label>
+            <select class="form-control" id="university" name="university">
+                {% for university in universities %}
+                <option value="{{ university.hash }}">{{ university.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+
+        <label for="subject">Subject</label>
+        <input id="subject" name="subject" type="text">
+
+        <label for="city">City</label>
+        <input id="city" name="city" type="text">
+
+        <label for="Seats">Seats</label>
+        <input id="seats" name="seats" type="text">
+
+    </form>
+</div>
+{% endblock %}

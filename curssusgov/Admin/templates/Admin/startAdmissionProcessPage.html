@@ -1,0 +1,19 @@
+{% extends 'Admin/base2.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Start Admission Process</h2>
+    <form method="POST" action="/startAdmissionProcess/">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="university">University</label>
+            <select class="form-control" id="university" name="university">
+                {% for university in universities %}
+                <option value="{{ university.hash }}">{{ university.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+{% endblock %}

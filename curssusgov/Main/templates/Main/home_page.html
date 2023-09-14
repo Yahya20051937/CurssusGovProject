@@ -1,0 +1,16 @@
+
+{% extends 'Main/base2.html' %}
+{% block content %}
+
+<div class="container mt-4">
+    {% for university in universities %}
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ university.name }}</h5>
+            <a href="/Main/home_page/{{university.hash}}/" class="btn btn-primary"> &gt; </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+

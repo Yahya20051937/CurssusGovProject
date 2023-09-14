@@ -1,0 +1,31 @@
+{% extends 'Main/base2.html' %}
+{% block content %}
+<h2 class="h2 text-primary mt-2">{{title}}</h2>
+<div class="container mt-4">
+<form method="POST" action="/Main/choices/">
+    {% csrf_token %}
+     {% for course in courses %}
+        <div class="card">
+        <div class="card-body">
+            <p >City: {{ course.city }}</p>
+            <p >Subject: {{ course.subject }}</p>
+            {% if title == 'Courses' %}
+                <a class="btn btn-primary" href="/Main/add_course/{{course.hash}}/">Add</a>
+            {% else %}
+                <a href="/Main/choices/{{course.hash}}">Change position</a>
+                {% if course.hash == selected_course_hash %}
+                    <select name="new_position/course_hash">
+                    {% for n in positions %}
+                        <option value="{{n}}/{{course.hash}}">{{n}}</option>
+                    {% endfor %}
+                    </select>
+                    <input type="submit" value="Save">
+                {% endif %}
+
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</form>
+</div>
+{% endblock %}

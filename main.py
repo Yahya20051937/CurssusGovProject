@@ -33,8 +33,7 @@ def get_random_hash():
 
 def admin():
     from Main.models import University, Course
-    universities = ['FACULTE DE SCIENCE ET TECHNIQUES', "ECODE SUPERIEURE D'ART ET DE DESIGN",
-                    'ECOLE SUPERIEURE DE TECHNOLOGIE']
+    universities_hashes = ["G4zg5ahz1CCZzOQQQxi", "y0VZKg20VoIOb8pTCeP"]
     fst_courses = ['MIP', 'BCG']
     fst_cities = ['FES', 'TANGER', 'MARRAKECH', 'MOHAMMADIA', 'STATT', 'HOCEIMA']
     est_cities = [
@@ -72,17 +71,17 @@ def admin():
         "Robotique et Automatisation (Robotics and Automation)"
     ]
     i = -1
-    for uni in universities:
+    for uni in universities_hashes:
         i += 1
-        uni_obj = University.objects.create(name=uni, hash=get_random_hash())
-        uni_obj.save()
+        uni_obj = University.objects.get(hash=uni)
+
         if i == 0:
             for city in fst_cities:
                 for crs in fst_courses:
-                    course = Course.objects.create(hash=get_random_hash(), city=city, subject=crs, university=uni_obj)
+                    course = Course.objects.create(hash=get_random_hash(), city=city, subject=crs, university=uni_obj, seats=760)
                     course.save()
         elif i == 2:
             for city in est_cities:
                 for crs in est_courses:
-                    course = Course.objects.create(hash=get_random_hash(), city=city, subject=crs, university=uni_obj)
+                    course = Course.objects.create(hash=get_random_hash(), city=city, subject=crs, university=uni_obj, seats=90)
                     course.save()

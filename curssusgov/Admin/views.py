@@ -280,4 +280,11 @@ def start_admission_process(request):
         university = University.objects.get(hash=university_hash)
         university.admission_process()
         return get_admin_dashboard(request)
-    return render(request, 'Admin/startAdmissionProcessPage.html', {'admin': admin})
+    return render(request, 'Admin/startAdmissionProcessPage.html', {'admin': admin, 'universities':University.objects.all()})
+
+
+def start_upgrading_process(request):
+    pass
+
+
+

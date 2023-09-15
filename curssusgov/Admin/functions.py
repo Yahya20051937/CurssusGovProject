@@ -24,3 +24,5 @@ def get_random_hash():
     for i in range(19):
         my_hash += all_symbols_and_numbers[random.randint(0, len(all_symbols_and_numbers) - 1)]
     return my_hash
+
+

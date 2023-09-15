@@ -1,0 +1,25 @@
+{% extends 'Main/base2.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ university.name }} Application Result</h1>
+    {% if application.admitted_in_choice != 0 %}
+    <div class="alert alert-success">
+        <p>Congratulations, You are admitted in choice N {{ application.admitted_in_choice }}</p>
+        {% if application.status == 'sent' %}
+            <a href="/Main/confirm/" class="btn btn-primary">Confirm</a>
+            <a href="/Main/reject/" class="btn btn-danger">Reject</a>
+            {% if application.admitted_in_choice != 1 %}
+            <a href="/Main/upgradeChoice/" class="btn btn-warning">Upgrade choice</a>
+            {% endif %}
+        {% else %}
+        <p>Done</p>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="alert alert-danger">
+        <p>You are not admitted in any of your choices, check the waiting list</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

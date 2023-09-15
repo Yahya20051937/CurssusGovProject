@@ -17,6 +17,8 @@ class Student(AbstractUser):
     groups = models.ManyToManyField(Group, related_name='app_users')
     username = models.CharField(unique=False, max_length=20)
     user_permissions = models.ManyToManyField(Permission, related_name='app_users_permissions')
+    all_chosen_courses_hashes = models.CharField(max_length=1000,
+                                                 default='')  # this attribute will be uses to display only the courses that are not chosen
     role = 'student$'
 
     def add_course_to_application_choices(self, university, course_hash):
@@ -24,6 +26,10 @@ class Student(AbstractUser):
         if len(student_choices.chosen_courses_hashes.split('/')[:-1]) < 10:
             student_choices.chosen_courses_hashes = student_choices.chosen_courses_hashes + f'{course_hash}/'
             student_choices.save()
+            self.all_chosen_courses_hashes = self.all_chosen_courses_hashes + f'{course_hash}/'
+            self.save()
+            return True
+        return False
 
     def get_university_application_choices(self, university):
         student_choices = Application.objects.get(student=self, university=university)
@@ -40,8 +46,9 @@ class Student(AbstractUser):
 
 
 class University(models.Model):
-    name = models.CharField(max_length=20, default='')
+    name = models.CharField(max_length=20, unique=True)
     hash = models.CharField(max_length=20, unique=True)
+    admission_processed = models.BooleanField(default=False)
     COEFFICIENTS = models.CharField(max_length=20)  # PC, SVT, MATH, ECONOMY (ORDER)
 
     def admission_process(self):
@@ -60,10 +67,16 @@ class University(models.Model):
 
         # Now we have to sort the students using the quick sort algorithm
         applying_students_sorted = quick_sort_applying_students(applying_students)
+        print([s.score for s in applying_students_sorted])
         waiting_list = []  # this list will the store the applications of the students who are not admitted
         # now for each student, for each one of his sorted choices, if there is a seat for him admit him and break
-        for applyingStudent in applying_students_sorted:
+        for applyingStudent in reversed(applying_students_sorted):
+            print(applyingStudent.score)
             applyingStudent.handle_admission(waiting_list)
+        print(len(waiting_list))
+
+        self.admission_processed = True
+        self.save()
 
 
 class Course(models.Model):
@@ -72,7 +85,9 @@ class Course(models.Model):
     subject = models.CharField(max_length=20)
     city = models.CharField(max_length=20)
     seats = models.IntegerField()
-    admitted_students = models.ManyToManyField(Student)
+    admitted_students = models.ManyToManyField(Student, related_name='admitted')
+    confirmed_students = models.ManyToManyField(Student, related_name='confirmed')
+    upgrading_students = models.ManyToManyField(Student, related_name='upgrading')
 
     # available seats = seats - admitted_students
 
@@ -86,6 +101,7 @@ class Application(models.Model):
     university = models.ForeignKey(University, on_delete=models.CASCADE)
     chosen_courses_hashes = models.CharField(max_length=300)
     admitted_in_choice = models.IntegerField(default=0)
+    status = models.CharField(max_length=20, default='sent')
 
     def change_course_position(self, course_hash, new_position):
         chosen_courses_hashes = self.chosen_courses_hashes.split('/')[:-1]

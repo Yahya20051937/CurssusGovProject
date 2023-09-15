@@ -9,4 +9,7 @@ urlpatterns = [path("log_in/", views.log_in, name='log_in'),
                path('add_course/<str:course_hash>/', views.add_course_to_choices, name='add'),
                path('choices/', views.get_choices, name='choices'),
                path('choices/<str:selected_course_hash>', views.get_choices, name='choices'),
+               path('results/', views.see_results, name='results'),
+               path('upgradeChoice/', views.upgrade_admission, name='upgrade'),
+               path('confirm/', views.confirm_admission, name='confirm')
                ]

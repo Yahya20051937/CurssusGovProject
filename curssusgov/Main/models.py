@@ -48,17 +48,19 @@ class Student(AbstractUser):
 class University(models.Model):
     name = models.CharField(max_length=20, unique=True)
     hash = models.CharField(max_length=20, unique=True)
+    applying_finished = models.BooleanField(default=False)
     admission_processed = models.BooleanField(default=False)
+    confirmation_finished = models.BooleanField(default=False)
+    upgrading_students = models.ManyToManyField(Student, related_name='upgrading')
+    waiting_list_students = models.ManyToManyField(Student, related_name='waitingList')
     COEFFICIENTS = models.CharField(max_length=20)  # PC, SVT, MATH, ECONOMY (ORDER)
 
-    def admission_process(self):
+    def getApplyingStudents(self, applications):
         from .objects import ApplyingStudent
         from .functions import quick_sort_applying_students
-        # first get all the applications
         COEFFICIENTS = self.COEFFICIENTS.split(',')
         COEFFICIENTS_DICT = {'PC': float(COEFFICIENTS[0]), 'SVT': float(COEFFICIENTS[1]),
                              'MATH': float(COEFFICIENTS[2]), 'ECO': float(COEFFICIENTS[3])}
-        applications = list(Application.objects.filter(university=self))
         applying_students = []
         for application in applications:
             applying_student = ApplyingStudent(application=application,
@@ -67,16 +69,45 @@ class University(models.Model):
 
         # Now we have to sort the students using the quick sort algorithm
         applying_students_sorted = quick_sort_applying_students(applying_students)
-        print([s.score for s in applying_students_sorted])
+        return applying_students_sorted
+
+    def admission_process(self):
+        from .objects import ApplyingStudent
+        from .functions import quick_sort_applying_students
+        # first get all the applications
+
+        applications = list(Application.objects.filter(university=self))
+        applyingStudentsSorted \
+            = self.getApplyingStudents(applications=applications)  # (sorted)
+
         waiting_list = []  # this list will the store the applications of the students who are not admitted
         # now for each student, for each one of his sorted choices, if there is a seat for him admit him and break
-        for applyingStudent in reversed(applying_students_sorted):
+        for applyingStudent in reversed(applyingStudentsSorted):
             print(applyingStudent.score)
             applyingStudent.handle_admission(waiting_list)
-        print(len(waiting_list))
 
         self.admission_processed = True
+        for student in waiting_list:
+            self.waiting_list_students.add(student)
+            self.save()
         self.save()
+
+    def upgrading_process(self):
+
+        # get the upgradingStudents applications
+        applications = []
+        for student in self.upgrading_students.all():
+            application = Application.objects.get(student=student, university=self)
+            applications.append(application)
+        upgradingStudentsSorted = self.getApplyingStudents(applications=applications)
+        for upgradingStudent in reversed(upgradingStudentsSorted):
+            # print(upgradingStudent.score)
+            print('a', upgradingStudent.application.admitted_in_choice)
+            upgradingStudent.handle_upgrade()
+            print('b', upgradingStudent.application.admitted_in_choice)
+            print('-----------------------------------------------------------------------------')
+        for course in list(Course.objects.filter(university=self)):
+            print(len(course.enrolled_students.all()) + len(course.admitted_students.all()))
 
 
 class Course(models.Model):
@@ -86,14 +117,13 @@ class Course(models.Model):
     city = models.CharField(max_length=20)
     seats = models.IntegerField()
     admitted_students = models.ManyToManyField(Student, related_name='admitted')
-    confirmed_students = models.ManyToManyField(Student, related_name='confirmed')
-    upgrading_students = models.ManyToManyField(Student, related_name='upgrading')
-
+    enrolled_students = models.ManyToManyField(Student, related_name='enrolled')
     # available seats = seats - admitted_students
 
     @property
     def available_seats(self):
-        return self.seats - len(self.admitted_students.all())
+        return self.seats - (len(self.enrolled_students.all()) + len(
+            self.admitted_students.all()))
 
 
 class Application(models.Model):

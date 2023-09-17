@@ -2,8 +2,8 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Start Admission Process</h2>
-    <form method="POST" action="/Admin/startAdmissionProcess/">
+    <h2>{{title}}</h2>
+    <form method="POST" action="{{action}}">
         {% csrf_token %}
         <div class="form-group">
             <label for="university">University</label>

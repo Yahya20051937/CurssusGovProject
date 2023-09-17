@@ -89,22 +89,57 @@ def test_admission_algorithm():
 def test_confirmation_upgrade():
     from Main.models import Course, University, Application
     fst = University.objects.get(id=1)
+    c = 0
+    u = 0
     for course in Course.objects.all():
         admitted_students = list(course.admitted_students.all())
         for student in admitted_students:
             app = Application.objects.get(student=student, university=fst)
-            j = random.choice([1, 2, 3])
-            if j == 1:
-                course.confirmed_students.add(student)
-                app.status = 'confirmed'
-            elif j == 2:
 
-                if app.admitted_in_choice != 1:
-                    course.upgrading_students.add(student)
-                    app.status = 'upgrading'
-                else:
-                    course.confirmed_students.add(student)
-                    app.status = 'confirmed'
+            if app.admitted_in_choice != 1:
+                u += 1
+                # course.students_to_upgrade.add(student)
+                fst.upgrading_students.add(student)
+                app.status = 'upgrading'
             else:
-                pass
+                s = random.choice([1, 2])
+                if s == 1:
+                    c += 1
+                    course.enrolled_students.add(student)
+                    course.admitted_students.remove(student)
+                    app.status = 'confirmed'
+                else:
+                    app.status = 'rejected'
+                    course.admitted_students.remove(student)
+
+            app.save()
+
         course.save()
+        fst.save()
+        print(u, c)
+
+
+
+def delete_all():
+    from Main.models import Application, Course, University
+    fst = University.objects.get(id=1)
+    fst_courses = Course.objects.filter(university=fst)
+    for c in fst_courses:
+        c.admitted_students.clear()
+        # c.students_to_upgrade.clear()
+        c.enrolled_students.clear()
+        c.save()
+
+    for app in Application.objects.all():
+        app.admitted_in_choice = 0
+        app.status = 'sent'
+        app.save()
+
+
+def test():
+    from Main.models import University
+    delete_all()
+    fst = University.objects.get(id=1)
+    fst.admission_process()
+    test_confirmation_upgrade()
+

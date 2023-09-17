@@ -278,13 +278,43 @@ def start_admission_process(request):
     if request.method == "POST":
         university_hash = request.POST.get('university')
         university = University.objects.get(hash=university_hash)
+        university.applying_finished = True
+        university.save()
         university.admission_process()
         return get_admin_dashboard(request)
-    return render(request, 'Admin/startAdmissionProcessPage.html', {'admin': admin, 'universities':University.objects.all()})
+    return render(request, 'Admin/startAdmissionProcessPage.html',
+                  {'admin': admin, 'universities': University.objects.all(), 'title': "Start Admission Process",
+                   'action': '/Admin/startAdmissionProcess/'})
+
+
+def stopConfirmingProcess(request):
+    """
+    If the user confirm his choice, he'll be moved from the admitted students to the enrolled students
+    :param request:
+    :return:
+    """
+    from Main.models import University, Course
+    admin = get_admin(request)
+    if request.method == "POST":
+        university_hash = request.POST.get('university')
+        university = University.objects.get(hash=university_hash)
+        university.confirmation_finished = True
+        university.save()
+        university_courses = list(Course.objects.filter(university=university))
+
+    return render(request, 'Admin/startAdmissionProcessPage.html',
+                  {'admin': admin, 'universities': University.objects.all(), 'title': "Stop Confirming Process",
+                   'action': '/Admin/stopConfirmingProcess/'})
 
 
 def start_upgrading_process(request):
-    pass
+    from Main.models import University
+    admin = get_admin(request)
+    if request.method == 'POST':
+        university_hash = request.POST.get('university')
+        university = University.objects.get(hash=university_hash)
+        university.upgrading_process()
 
-
-
+    return render(request, 'Admin/startAdmissionProcessPage.html',
+                  {'admin': admin, 'universities': University.objects.all(), 'title': "Start upgrading Process",
+                   'action': '/Admin/startUpgradingProcess/'})

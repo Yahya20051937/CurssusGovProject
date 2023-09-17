@@ -49,6 +49,8 @@ def get_university_courses(request):
     university = get_university(request)
     if university is None:
         return HttpResponse("You must chose a university first")
+    if university.applying_finished is True:
+        return HttpResponse("The applying phase is finished")
     courses = list(Course.objects.filter(university=university))
     courses = [course for course in courses if course.hash not in student.all_chosen_courses_hashes.split('/')[
                                                                   :-1]]  # this to display only the course that are not chosen
@@ -62,6 +64,8 @@ def add_course_to_choices(request, course_hash):
     university = get_university(request)
     if university is None:
         return HttpResponse("You must chose a university first")
+    if university.applying_finished is True:
+        return HttpResponse("The applying phase is finished")
     added = student.add_course_to_application_choices(university=university, course_hash=course_hash)
     if added:
         return get_university_courses(request)
@@ -75,6 +79,8 @@ def get_choices(request, selected_course_hash=''):
     university = get_university(request)
     if university is None:
         return HttpResponse("You must chose a university first")
+    if university.applying_finished is True:
+        return HttpResponse("The applying phase is finished")
     university_choices = student.get_university_application_choices(university)
     if request.method == 'POST':
         new_position, course_hash = tuple(request.POST.get('new_position/course_hash').split('/'))
@@ -93,6 +99,8 @@ def see_results(request):
     university = get_university(request)
     if university is None:
         return HttpResponse("You must chose a university first")
+    if university.confirmation_finished:
+        return HttpResponse("Confirmation phase is finished")
     if university.admission_processed:
         application = Application.objects.get(university=university, student=student)
         if application.admitted_in_choice != 0:
@@ -115,12 +123,14 @@ def confirm_admission(request):
     if admitted_in_course_hash is None:
         return HttpResponse(404)
     course = Course.objects.get(hash=admitted_in_course_hash)
-    course.confirmed_students.add(student)
+    course.enrolled_students.add(student)
+    course.admitted_students.remove(student)
+    course.save()
     return redirect('/Main/results')
 
 
 def upgrade_admission(request):
-    from .models import Course, Application
+    from .models import Application
     from .functions import get_university, get_student
     student = get_student(request)
     university = get_university(request)
@@ -130,8 +140,8 @@ def upgrade_admission(request):
     application.save()
     if admitted_in_course_hash is None:
         return HttpResponse(404)
-    course = Course.objects.get(hash=admitted_in_course_hash)
-    course.upgrading_students.add(student)
+    university.upgrading_students.add(student)
+
     return redirect('/Main/results')
 
 
